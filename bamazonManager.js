@@ -18,7 +18,7 @@ const manager = function (){
     inquirer.prompt([
         {
             type: 'list',
-            choices: ['View Producs for Sale', 'View Low Inventory', 'Add to Inventory', 'Add New Product'],
+            choices: ['View Producs for Sale', 'View Low Inventory', 'Add to Inventory', 'Add New Product',"Exit"],
             name: 'managerChoice'
         }
     ]).then(function(res){
@@ -35,6 +35,9 @@ const manager = function (){
         else if(res.managerChoice === "Add New Product"){
             addNewProduct();
         }
+        else if(res.managerChoice === 'Quit'){
+            process.exit();
+        }
     })
 }
 
@@ -43,6 +46,7 @@ const getProducts = function(){
         for (var i = 0; i < res.length; i ++){
             console.log(res[i].itemid+" || "+res[i].productname+' || '+res[i].price + ' || '+ res[i].stockquantity);
         }
+        manager();
     })
 }
 
@@ -57,7 +61,9 @@ const getLowInventory = function(){
         for (var i = 0; i < lowInventory.length; i ++){
             console.log(lowInventory[i].productname + ' || '+lowInventory[i].stockquantity);
         }
+        manager();
     })
+    
 }
 
 const addToInventory = function (){
@@ -99,12 +105,15 @@ const addToInventory = function (){
                         }
                     ]),function(err, result){
                         if (err) throw err;
+
                         console.log('Inventory updated!');
+                        
                     }
                 }  
             }
         });
     });
+    
 }
 
 const addNewProduct = function(){
@@ -145,8 +154,10 @@ const addNewProduct = function(){
             function(err, res){
                 if (err) throw err;
                 console.log(`You've added ${quantity} ${name} into the ${category} department, with the price of ${price} each`)
+                manager();
             }
         )
     })
+    
 
 }

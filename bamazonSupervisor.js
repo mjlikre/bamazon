@@ -1,5 +1,6 @@
 var inquirer = require('inquirer');
 var sql = require('mysql');
+const cTable = require('console.table');
 
 var connection = sql.createConnection({
     host: 'localhost',
@@ -25,13 +26,47 @@ const supervisorMenu = function(){
     ]).then(function(res){
         if (res.supervisorChoice === 'View Product Sales by Department'){
 
-            connection.query('SELECT departents.department_id, departents.department_name, departents.overhead_cost, inventory.product_sale FROM departents INNER JOIN inventory ON inventory.department = departents.department_name', function(err, response){
-                console.log(response);
+            connection.query('SELECT * FROM departents', function(err, res){
+                const report = res
+                for (var i = 0; i < report.length; i ++){
+                    report[i].profit = report[i].product_sales - report[i].overhead_cost
+                }
+                console.table(report);
             })
+            supervisorMenu()
+                
 
         }
-        // else{
-        //     createNewDepartment();
-        // }
+        else{
+            createNewDepartment();
+        }
     })
+}
+
+const createNewDepartment = function(){
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: "Enter the department name",
+            name: "deptName"
+        },
+        {
+            type: 'input',
+            message: "Enter the department overhead cost",
+            name: "deptCost"
+        }
+    ]).then(function(res){
+        connection.query(`INSERT INTO departents (department_name, overhead_cost, product_sales) VALUES (?)`,[
+            {
+                department_name: res.deptName,
+                overhead_cost: res.deptCost,  
+                product_sales: 0
+            }
+        ], function(err, res){
+            if (err) throw err;
+        })
+        supervisorMenu();
+    })
+    
+    
 }
